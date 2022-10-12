@@ -12,7 +12,7 @@
     <artifactId>Base64Utils</artifactId>
     <version>1.0.0</version>
     <name>Base64Utils</name>
-    <description>将 Base64 解码生成文件保存到指定路径；将文件转换成 Base64 码</description>
+    <description>将 Base64 解码生成文件保存到指定路径，或将文件转换成 Base64 码</description>
     <licenses>
         <license>
             <name>GNU General Public License v3.0 </name>
