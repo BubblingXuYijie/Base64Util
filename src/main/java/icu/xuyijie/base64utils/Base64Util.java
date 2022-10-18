@@ -63,37 +63,42 @@ public class Base64Util {
             base64 = base64Str;
         }
         // 获取文件后缀名
+        String fileName = StringUtils.substringAfterLast(filePath, "/");
+        if (StringUtils.isEmpty(fileName)){
+            fileName = StringUtils.substringAfterLast(filePath, "\\");
+        }
         String suffix;
-        // 如果传入的文件名带有后缀
-        if (filePath.contains(".")) {
-            suffix = StringUtils.substringAfter(filePath, ".");
-            filePath = StringUtils.substringBefore(filePath, ".");
-        } else {
+        // 如果传入的文件名没有后缀
+        if (!fileName.contains(".")) {
+            //从base64码中判断文件类型
             suffix = StringUtils.substringBetween(base64Str, "/", ";");
-        }
-        if (StringUtils.isEmpty(suffix)) {
-            suffix = "png";
-            System.out.println("传入的base64Str没有前缀，并且传入的fileName没有扩展名，所以无法确定文件类型，默认以png格式输出");
-        }
-        //做文件后缀名检测，因为base64的一个缺点就是后缀名不能自动生成，有些特殊后缀无法直接获取
-        if (suffix.contains("wordprocessing")) {
-            filePath += ".docx";
-        } else if (suffix.contains("presentation")) {
-            filePath += ".pptx";
-        } else if (suffix.contains("spreadsheet")) {
-            filePath += ".xlsx";
-        } else if (suffix.contains("excel")) {
-            filePath += ".xls";
-        } else if (suffix.contains("word")) {
-            filePath += ".doc";
-        } else if (suffix.contains("powerpoint")) {
-            filePath += ".ppt";
-        } else if (suffix.contains("octet-stream")) {
-            filePath += ".rar";
-        } else if (suffix.contains("zip")) {
-            filePath += ".zip";
-        } else {
-            filePath += "." + suffix;
+            if (StringUtils.isEmpty(suffix)) {
+                filePath += ".png";
+                System.out.println("传入的base64Str没有前缀，并且传入的fileName没有扩展名，所以无法确定文件类型，默认以png格式输出");
+            } else {
+                //做文件后缀名检测，因为base64的一个缺点就是后缀名不能自动生成，有些特殊后缀无法直接获取
+                if (suffix.contains("wordprocessing")) {
+                    filePath += ".docx";
+                } else if (suffix.contains("presentation")) {
+                    filePath += ".pptx";
+                } else if (suffix.contains("spreadsheet")) {
+                    filePath += ".xlsx";
+                } else if (suffix.contains("excel")) {
+                    filePath += ".xls";
+                } else if (suffix.contains("word")) {
+                    filePath += ".doc";
+                } else if (suffix.contains("powerpoint")) {
+                    filePath += ".ppt";
+                } else if (suffix.contains("octet-stream")) {
+                    filePath += ".rar";
+                } else if (suffix.contains("zip")) {
+                    filePath += ".zip";
+                } else if ("plain".equals(suffix)) {
+                    filePath += ".txt";
+                } else {
+                    filePath += "." + suffix;
+                }
+            }
         }
         Map<String, String> map = new HashMap<>(8);
         map.put("base64", base64);
