@@ -5,17 +5,17 @@
     <parent>
         <groupId>org.springframework.boot</groupId>
         <artifactId>spring-boot-starter-parent</artifactId>
-        <version>2.7.4</version>
+        <version>2.7.6</version>
         <relativePath/> <!-- lookup parent from repository -->
     </parent>
     <groupId>icu.xuyijie</groupId>
     <artifactId>Base64Utils</artifactId>
-    <version>1.1.0</version>
+    <version>1.2.0</version>
     <name>Base64Utils</name>
     <description>将 Base64 解码生成文件保存到指定路径，或将文件转换成 Base64 码</description>
     <licenses>
         <license>
-            <name>GNU General Public License v3.0 </name>
+            <name>GNU General Public License v3.0</name>
             <url>https://www.gnu.org/licenses/gpl-3.0.en.html</url>
             <distribution>repo</distribution>
         </license>
@@ -36,7 +36,8 @@
     </scm>
 
     <properties>
-        <java.version>1.8</java.version>
+        <java.version>17</java.version>
+        <!--maven-javadoc-plugin版本2设置忽略javadoc生成和文档规范检查，版本三在下面的plugin设置-->
         <!--        <maven.javadoc.skip>true</maven.javadoc.skip>-->
         <!--        <additionalparam>-Xdoclint:none</additionalparam>-->
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
@@ -102,21 +103,8 @@
                 </executions>
                 <configuration>
                     <doclint>none</doclint>
+                    <!--<skip>true</skip>-->
                 </configuration>
-            </plugin>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-gpg-plugin</artifactId>
-                <version>1.5</version>
-                <executions>
-                    <execution>
-                        <id>sign-artifacts</id>
-                        <phase>verify</phase>
-                        <goals>
-                            <goal>sign</goal>
-                        </goals>
-                    </execution>
-                </executions>
             </plugin>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>

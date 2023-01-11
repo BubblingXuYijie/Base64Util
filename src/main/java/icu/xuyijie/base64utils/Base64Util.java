@@ -2,6 +2,8 @@ package icu.xuyijie.base64utils;
 
 import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.lang3.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.*;
 import java.nio.file.Files;
@@ -10,8 +12,8 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
- * @author: 徐一杰
- * @date: 2022/10/11
+ * @author 徐一杰
+ * @date 2022/10/11
  * 将 Base64 解码生成文件保存到指定路径，或将文件转换成 Base64 码
  * // 将文件编码成Base64，可传入文件全路径，或者一个 File 对象
  * String s = Base64Util.transferToBase64("D:/下载/Screenshot_20221008-090627.png");
@@ -24,6 +26,7 @@ import java.util.Map;
  * System.out.println(s1);
  */
 public class Base64Util {
+    private static final Logger logger = LoggerFactory.getLogger(Base64Util.class);
 
     /**
      * 将文件转换成 Base64 码
@@ -51,9 +54,9 @@ public class Base64Util {
     /**
      * 处理 base64 前缀和 filePath 后缀名
      *
-     * @param base64Str
-     * @param filePath
-     * @return
+     * @param base64Str base64文本
+     * @param filePath 文件全路径
+     * @return 处理过的base64文本和文件路径
      */
     private static Map<String, String> handler(String base64Str, String filePath) {
         // 去掉base64码的前缀，不去掉生成的文件会损坏
@@ -74,7 +77,7 @@ public class Base64Util {
             suffix = StringUtils.substringBetween(base64Str, "/", ";");
             if (StringUtils.isEmpty(suffix)) {
                 filePath += ".png";
-                System.out.println("传入的base64Str没有前缀，并且传入的fileName没有扩展名，所以无法确定文件类型，默认以png格式输出");
+                logger.warn("传入的base64Str没有前缀，并且传入的fileName没有扩展名，所以无法确定文件类型，默认以png格式输出");
             } else {
                 //做文件后缀名检测，因为base64的一个缺点就是后缀名不能自动生成，有些特殊后缀无法直接获取
                 if (suffix.contains("wordprocessing")) {
@@ -133,7 +136,8 @@ public class Base64Util {
         }
         // 如果文件数据为空
         if (base64 == null) {
-            return "文件为空";
+            logger.warn("文件为空");
+            return "";
         }
         try {
             // Base64解码
@@ -176,7 +180,8 @@ public class Base64Util {
         }
         // 如果文件数据为空
         if (base64 == null) {
-            return "文件为空";
+            logger.warn("文件为空");
+            return "";
         }
         try {
             // Base64解码
