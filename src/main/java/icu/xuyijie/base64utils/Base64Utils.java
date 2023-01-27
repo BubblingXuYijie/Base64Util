@@ -25,8 +25,13 @@ import java.util.Map;
  * String s1 = Base64Util.generateFile(s, "D:/下载", "aaa.png");
  * System.out.println(s1);
  */
-public class Base64Util {
-    private static final Logger logger = LoggerFactory.getLogger(Base64Util.class);
+public class Base64Utils {
+
+    private Base64Utils() {
+
+    }
+
+    private static final Logger logger = LoggerFactory.getLogger(Base64Utils.class);
 
     /**
      * 将文件转换成 Base64 码
@@ -103,7 +108,7 @@ public class Base64Util {
                 }
             }
         }
-        Map<String, String> map = new HashMap<>(8);
+        Map<String, String> map = new HashMap<>(4);
         map.put("base64", base64);
         map.put("filePath", filePath);
         return map;
@@ -149,10 +154,10 @@ public class Base64Util {
                 }
             }
             // 生成文件
-            BufferedOutputStream out = new BufferedOutputStream(Files.newOutputStream(Paths.get(filePath)));
-            out.write(bytes);
-            out.flush();
-            out.close();
+            try (BufferedOutputStream out = new BufferedOutputStream(Files.newOutputStream(Paths.get(filePath)))) {
+                out.write(bytes);
+                out.flush();
+            }
         } catch (Exception e) {
             e.printStackTrace();
         }
