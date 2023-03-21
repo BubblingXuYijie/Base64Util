@@ -65,7 +65,7 @@ public class Base64Utils {
      * 处理 base64 前缀和 filePath 后缀名
      *
      * @param base64Str base64文本
-     * @param filePath 文件全路径
+     * @param filePath  文件全路径
      * @return 处理过的base64文本和文件路径
      */
     private static Map<String, String> handler(String base64Str, String filePath) {
@@ -81,7 +81,7 @@ public class Base64Utils {
         }
         // 获取文件后缀名
         String fileName = StringUtils.substringAfterLast(filePath, WINDOWS_FILE_SEPARATOR);
-        if (StringUtils.isEmpty(fileName)){
+        if (StringUtils.isEmpty(fileName)) {
             fileName = StringUtils.substringAfterLast(filePath, LINUX_FILE_SEPARATOR);
         }
         String suffix;
@@ -123,6 +123,12 @@ public class Base64Utils {
         return map;
     }
 
+    /**
+     * 保存文件
+     *
+     * @param base64   文件base64
+     * @param filePath 保存路径
+     */
     private static void saveFile(String base64, String filePath) {
         try {
             // Base64解码
