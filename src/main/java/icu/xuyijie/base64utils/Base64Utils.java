@@ -117,7 +117,7 @@ public class Base64Utils {
                 }
             }
         }
-        Map<String, String> map = new HashMap<>(3);
+        Map<String, String> map = new HashMap<>(4);
         map.put(BASE64_MAP_KEY, base64);
         map.put(FILEPATH_MAP_KEY, filePath);
         return map;
@@ -176,7 +176,7 @@ public class Base64Utils {
         String base64 = map.get(BASE64_MAP_KEY);
         //如果路径不存在就创建文件目录
         File dir = new File(folderPath);
-        if (!dir.isDirectory() && (!dir.mkdirs())) {
+        if (!dir.isDirectory() && !dir.mkdirs()) {
             logger.error("保存文件夹创建失败：{}", folderPath);
         }
         //保存文件
@@ -205,7 +205,7 @@ public class Base64Utils {
         String folderPath = StringUtils.substringBeforeLast(filePath, LINUX_FILE_SEPARATOR);
         File dir = new File(folderPath);
         //如果路径不存在就创建文件目录
-        if (!dir.isDirectory() && (!dir.mkdirs())) {
+        if (!dir.isDirectory() && !dir.mkdirs()) {
             // 如果用户传入的filePath比较奇怪，例如D:/aa\aaa.png，那么就有可能生成文件失败，我们要再次处理一下全路径
             folderPath = StringUtils.substringBeforeLast(filePath, WINDOWS_FILE_SEPARATOR);
             dir = new File(folderPath);
