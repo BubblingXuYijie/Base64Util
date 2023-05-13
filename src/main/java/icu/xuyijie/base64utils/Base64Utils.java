@@ -219,9 +219,4 @@ public class Base64Utils {
         return filePath;
     }
 
-//      String s = Base64Util.transferToBase64("D:/下载/Screenshot_20221008-090627.png")
-//      System.out.println(s)
-//      String s1 = Base64Util.generateFile(s, "D:/下载\\aaa.png")
-//      System.out.println(s1)
-
 }
