@@ -136,7 +136,7 @@ public class Base64Utils {
             for (int i = 0; i < bytes.length; ++i) {
                 // 调整异常数据
                 if (bytes[i] < 0) {
-                    bytes[i] += 256;
+                    bytes[i] += (byte) 256;
                 }
             }
             // 生成文件
@@ -146,7 +146,6 @@ public class Base64Utils {
             }
         } catch (Exception e) {
             logger.error("文件保存失败", e);
-            e.printStackTrace();
         }
     }
 
