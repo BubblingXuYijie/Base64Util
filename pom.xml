@@ -14,9 +14,14 @@
     <name>Base64Utils</name>
     <description>将 Base64 解码生成文件保存到指定路径，或将文件转换成 Base64 码</description>
     <licenses>
+<!--        <license>-->
+<!--            <name>GNU General Public License v3.0</name>-->
+<!--            <url>https://www.gnu.org/licenses/gpl-3.0.en.html</url>-->
+<!--            <distribution>repo</distribution>-->
+<!--        </license>-->
         <license>
-            <name>GNU General Public License v3.0</name>
-            <url>https://www.gnu.org/licenses/gpl-3.0.en.html</url>
+            <name>MIT License</name>
+            <url>https://www.apache.org/licenses/LICENSE-2.0</url>
             <distribution>repo</distribution>
         </license>
     </licenses>
@@ -30,9 +35,9 @@
 
     <scm>
         <tag>main</tag>
-        <url>https://github.com/XuYijie000416/Base64Util.git</url>
-        <connection>https://github.com/XuYijie000416/Base64Util.git</connection>
-        <developerConnection>https://github.com/XuYijie000416/Base64Util.git</developerConnection>
+        <url>https://github.com/BubblingXuYijie/Base64Util</url>
+        <connection>https://github.com/BubblingXuYijie/Base64Util</connection>
+        <developerConnection>https://github.com/BubblingXuYijie/Base64Util</developerConnection>
     </scm>
 
     <properties>
