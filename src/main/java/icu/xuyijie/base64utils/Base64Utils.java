@@ -44,10 +44,8 @@ public class Base64Utils {
      * @param filePath 文件全路径
      * @return base64码
      */
-    public static String transferToBase64(String filePath) throws IOException {
-        File file = new File(filePath);
-        byte[] fileContent = Files.readAllBytes(file.toPath());
-        return Base64.encodeBase64String(fileContent);
+    public static String transferToBase64(String filePath) {
+        return transferToBase64(new File(filePath));
     }
 
     /**
@@ -56,8 +54,13 @@ public class Base64Utils {
      * @param file 文件对象
      * @return base64码
      */
-    public static String transferToBase64(File file) throws IOException {
-        byte[] fileContent = Files.readAllBytes(file.toPath());
+    public static String transferToBase64(File file) {
+        byte[] fileContent = new byte[0];
+        try {
+            fileContent = Files.readAllBytes(file.toPath());
+        } catch (IOException e) {
+            logger.error("读取文件失败：", e);
+        }
         return Base64.encodeBase64String(fileContent);
     }
 
@@ -88,7 +91,7 @@ public class Base64Utils {
         // 如果传入的文件名没有后缀
         if (!fileName.contains(".")) {
             //从未处理过的base64码中判断文件类型
-            suffix = StringUtils.substringBetween(base64Str, "/", ";");
+            suffix = StringUtils.substringBetween(base64Str, "/", ";base64,");
             if (StringUtils.isEmpty(suffix)) {
                 filePath += ".png";
                 logger.warn("传入的base64没有前缀，并且传入的文件名没有扩展名，所以无法确定文件类型，默认以png格式保存");
@@ -102,7 +105,7 @@ public class Base64Utils {
                     filePath += ".xlsx";
                 } else if (suffix.contains("excel")) {
                     filePath += ".xls";
-                } else if (suffix.contains("word")) {
+                } else if (suffix.contains("msword")) {
                     filePath += ".doc";
                 } else if (suffix.contains("powerpoint")) {
                     filePath += ".ppt";
@@ -112,6 +115,10 @@ public class Base64Utils {
                     filePath += ".zip";
                 } else if (suffix.contains("plain")) {
                     filePath += ".txt";
+                } else if (suffix.contains("x-icon")) {
+                    filePath += ".icon";
+                } else if (suffix.contains("svg")) {
+                    filePath += ".svg";
                 } else {
                     filePath += "." + suffix;
                 }
@@ -151,7 +158,6 @@ public class Base64Utils {
 
     /**
      * 进行Base64解码并生成文件保存到指定路径
-     * imgFilePath 待保存的本地路径
      *
      * @param base64Str  base64码
      * @param folderPath 要保存的文件位置（不含文件名）
@@ -186,7 +192,6 @@ public class Base64Utils {
 
     /**
      * 进行Base64解码并生成文件保存到指定路径
-     * imgFilePath 待保存的本地路径
      *
      * @param base64Str base64码
      * @param filePath  要保存的文件全路径（含文件名）
@@ -200,12 +205,12 @@ public class Base64Utils {
         }
         filePath = map.get(FILEPATH_MAP_KEY);
         String base64 = map.get(BASE64_MAP_KEY);
-        //获取保存目录
+        //获取保存目录，因为无论什么系统，用户都可传入以/或者\风格的路径，例如D:/aa/aaa.png或D:\\aa\\aaa.png，所以先尝试使用/来获取
         String folderPath = StringUtils.substringBeforeLast(filePath, LINUX_FILE_SEPARATOR);
         File dir = new File(folderPath);
         //如果路径不存在就创建文件目录
         if (!dir.isDirectory() && !dir.mkdirs()) {
-            // 如果用户传入的filePath比较奇怪，例如D:/aa\aaa.png，那么就有可能生成文件失败，我们要再次处理一下全路径
+            // 如果使用/来获取生成文件失败，我们要再次尝试使用\来获取
             folderPath = StringUtils.substringBeforeLast(filePath, WINDOWS_FILE_SEPARATOR);
             dir = new File(folderPath);
             if (!dir.isDirectory() && (!dir.mkdirs())) {

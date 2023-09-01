@@ -8,7 +8,7 @@
 <dependency>
     <groupId>icu.xuyijie</groupId>
     <artifactId>Base64Utils</artifactId>
-    <version>1.2.5</version>
+    <version>1.2.6</version>
 </dependency>
 ```
 - 使用
