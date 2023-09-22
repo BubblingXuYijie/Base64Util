@@ -87,47 +87,103 @@ public class Base64Utils {
         if (StringUtils.isEmpty(fileName)) {
             fileName = StringUtils.substringAfterLast(filePath, LINUX_FILE_SEPARATOR);
         }
-        String suffix;
-        // 如果传入的文件名没有后缀
+        // 如果传入的文件名没有后缀，就解析base64获取文件类型
         if (!fileName.contains(".")) {
-            //从未处理过的base64码中判断文件类型
-            suffix = StringUtils.substringBetween(base64Str, "/", ";base64,");
-            if (StringUtils.isEmpty(suffix)) {
-                filePath += ".png";
-                logger.warn("传入的base64没有前缀，并且传入的文件名没有扩展名，所以无法确定文件类型，默认以png格式保存");
-            } else {
-                //做文件后缀名检测，因为base64的一个缺点就是后缀名不能自动生成，有些特殊后缀无法直接获取
-                if (suffix.contains("wordprocessing")) {
-                    filePath += ".docx";
-                } else if (suffix.contains("presentation")) {
-                    filePath += ".pptx";
-                } else if (suffix.contains("spreadsheet")) {
-                    filePath += ".xlsx";
-                } else if (suffix.contains("excel")) {
-                    filePath += ".xls";
-                } else if (suffix.contains("msword")) {
-                    filePath += ".doc";
-                } else if (suffix.contains("powerpoint")) {
-                    filePath += ".ppt";
-                } else if (suffix.contains("octet-stream")) {
-                    filePath += ".rar";
-                } else if (suffix.contains("zip")) {
-                    filePath += ".zip";
-                } else if (suffix.contains("plain")) {
-                    filePath += ".txt";
-                } else if (suffix.contains("x-icon")) {
-                    filePath += ".icon";
-                } else if (suffix.contains("svg")) {
-                    filePath += ".svg";
-                } else {
-                    filePath += "." + suffix;
-                }
-            }
+            String fileType = getFileType(base64Str);
+            filePath += "." + fileType;
         }
+
         Map<String, String> map = new HashMap<>(4);
         map.put(BASE64_MAP_KEY, base64);
         map.put(FILEPATH_MAP_KEY, filePath);
         return map;
+    }
+
+    /**
+     * 解析base64获取文件类型
+     *
+     * @param base64Str base64
+     * @return 文件类型
+     */
+    public static String getFileType(String base64Str) {
+        String fileType;
+        //从未处理过的base64码中判断文件类型
+        String suffix = StringUtils.substringBetween(base64Str, "/", ";base64,");
+        if (StringUtils.isEmpty(suffix)) {
+            fileType = "png";
+            logger.warn("传入的base64没有前缀，并且传入的文件名没有扩展名，所以无法确定文件类型，默认以png格式保存");
+        } else {
+            //做文件后缀名检测，因为base64的一个缺点就是后缀名不能自动生成，有些特殊后缀无法直接获取
+            if (suffix.contains("wordprocessing")) {
+                fileType = "docx";
+            } else if (suffix.contains("presentation")) {
+                fileType = "pptx";
+            } else if (suffix.contains("spreadsheet")) {
+                fileType = "xlsx";
+            } else if (suffix.contains("excel")) {
+                fileType = "xls";
+            } else if (suffix.contains("msword")) {
+                fileType = "doc";
+            } else if (suffix.contains("powerpoint")) {
+                fileType = "ppt";
+            } else if (suffix.contains("octet-stream")) {
+                //这个前缀还可能是heic图片
+                fileType = "rar";
+            } else if (suffix.contains("zip")) {
+                fileType = "zip";
+            } else if (suffix.contains("plain")) {
+                fileType = "txt";
+            } else if (suffix.contains("x-icon")) {
+                fileType = "icon";
+            } else if (suffix.contains("svg")) {
+                fileType = "svg";
+            } else {
+                fileType = suffix;
+            }
+        }
+        return fileType;
+    }
+
+    /**
+     * base64转为文件对象
+     *
+     * @param base64 base64
+     * @return 文件流对象
+     */
+    public static File getFile(String base64) {
+        try {
+            // Base64解码
+            byte[] bytes = decodeBase64(base64);
+            // 生成临时文件
+            File tempFile = File.createTempFile(String.valueOf(System.currentTimeMillis()), ".tmp");
+            try (BufferedOutputStream out = new BufferedOutputStream(Files.newOutputStream(tempFile.toPath()))) {
+                out.write(bytes);
+                out.flush();
+            }
+            tempFile.deleteOnExit();
+            return tempFile;
+        } catch (Exception e) {
+            logger.error("base64转换文件对象失败", e);
+        }
+        return null;
+    }
+
+    /**
+     * base64转为文件流
+     *
+     * @param base64 base64
+     * @return 文件流
+     */
+    public static FileInputStream getFileStream(String base64) {
+        File tempFile = getFile(base64);
+        if (tempFile != null) {
+            try {
+                return new FileInputStream(tempFile);
+            } catch (Exception e) {
+                logger.error("base64转换文件流失败", e);
+            }
+        }
+        return null;
     }
 
     /**
@@ -139,13 +195,7 @@ public class Base64Utils {
     private static void saveFile(String base64, String filePath) {
         try {
             // Base64解码
-            byte[] bytes = Base64.decodeBase64(base64);
-            for (int i = 0; i < bytes.length; ++i) {
-                // 调整异常数据
-                if (bytes[i] < 0) {
-                    bytes[i] += (byte) 256;
-                }
-            }
+            byte[] bytes = decodeBase64(base64);
             // 生成文件
             try (BufferedOutputStream out = new BufferedOutputStream(Files.newOutputStream(Paths.get(filePath)))) {
                 out.write(bytes);
@@ -154,6 +204,24 @@ public class Base64Utils {
         } catch (Exception e) {
             logger.error("文件保存失败", e);
         }
+    }
+
+    /**
+     * Base64解码字节数组
+     *
+     * @param base64 Base64
+     * @return 字节数组
+     */
+    private static byte[] decodeBase64(String base64) {
+        // Base64解码
+        byte[] bytes = Base64.decodeBase64(base64);
+        for (int i = 0; i < bytes.length; ++i) {
+            // 调整异常数据
+            if (bytes[i] < 0) {
+                bytes[i] += (byte) 256;
+            }
+        }
+        return bytes;
     }
 
     /**
