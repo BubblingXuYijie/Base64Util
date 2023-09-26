@@ -154,8 +154,9 @@ public class Base64Utils {
         try {
             // Base64解码
             byte[] bytes = decodeBase64(base64);
+            String fileType = getFileType(base64);
             // 生成临时文件
-            File tempFile = File.createTempFile(String.valueOf(System.currentTimeMillis()), ".tmp");
+            File tempFile = File.createTempFile(String.valueOf(System.currentTimeMillis()), "." + fileType);
             try (BufferedOutputStream out = new BufferedOutputStream(Files.newOutputStream(tempFile.toPath()))) {
                 out.write(bytes);
                 out.flush();
