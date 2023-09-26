@@ -93,7 +93,7 @@ public class Base64Utils {
             filePath += "." + fileType;
         }
 
-        Map<String, String> map = new HashMap<>(4);
+        Map<String, String> map = new HashMap<>(4, 1);
         map.put(BASE64_MAP_KEY, base64);
         map.put(FILEPATH_MAP_KEY, filePath);
         return map;
