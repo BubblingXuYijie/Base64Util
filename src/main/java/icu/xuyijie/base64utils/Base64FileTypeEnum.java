@@ -66,7 +66,7 @@ public enum Base64FileTypeEnum {
             return optional.get().getType();
         }
         //没有匹配项返回prefix本身，有很多文件类型的base64前缀就是文件类型，比如png、gif、mp4等
-        return prefix;
+        return Base64Utils.FILE_TYPE_SEPARATOR + prefix;
     }
 
 }

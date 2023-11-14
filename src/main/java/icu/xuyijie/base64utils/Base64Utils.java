@@ -34,7 +34,7 @@ public class Base64Utils {
     private static final Logger logger = LoggerFactory.getLogger(Base64Utils.class);
     private static final String WINDOWS_FILE_SEPARATOR = "\\";
     private static final String LINUX_FILE_SEPARATOR = "/";
-    private static final String FILE_TYPE_SEPARATOR = ".";
+    protected static final String FILE_TYPE_SEPARATOR = ".";
     private static final String BASE64_MAP_KEY = "base64";
     private static final String FILEPATH_MAP_KEY = "filePath";
 
@@ -131,7 +131,7 @@ public class Base64Utils {
             byte[] bytes = decodeBase64(base64Str);
             String fileType = getFileType(base64Str);
             // 生成临时文件
-            File tempFile = File.createTempFile(String.valueOf(System.currentTimeMillis()), FILE_TYPE_SEPARATOR + fileType);
+            File tempFile = File.createTempFile(String.valueOf(System.currentTimeMillis()), fileType);
             try (BufferedOutputStream out = new BufferedOutputStream(Files.newOutputStream(tempFile.toPath()))) {
                 out.write(bytes);
                 out.flush();
