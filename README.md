@@ -8,7 +8,7 @@
 <dependency>
     <groupId>icu.xuyijie</groupId>
     <artifactId>Base64Utils</artifactId>
-    <version>1.2.6</version>
+    <version>1.2.9</version>
 </dependency>
 ```
 - 使用
@@ -23,4 +23,8 @@ System.out.println(s);
 String s1 = Base64Util.generateFile(s, "D:\\下载\\aaa.png");
 String s1 = Base64Util.generateFile(s, "D:/下载", "aaa.png");
 System.out.println(s1);
+//也可以从base64获取文件对象呵呵流，或者文件类型
+File file = Base64Util.getFile("D:/下载/a.png");
+FileInputStream fileInputStream = Base64Util.getFileStream("D:/下载/a.png");
+String fileType = Base64Util.getFileType("base64Str");
 ```
