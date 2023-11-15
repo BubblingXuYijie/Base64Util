@@ -15,16 +15,20 @@ import java.util.Map;
 /**
  * @author 徐一杰
  * @date 2022/10/11
- * 将 Base64 解码生成文件保存到指定路径，或将文件转换成 Base64 码
+ * 将 Base64 解码生成文件保存到指定路径，或将文件转换成 Base64 码，第二个参数是是否生成前缀
  * // 将文件编码成Base64，可传入文件全路径，或者一个 File 对象
- * String s = Base64Util.transferToBase64("D:/下载/Screenshot_20221008-090627.png");
- * File file = new File(filePath);
- * String s = Base64Util.transferToBase64(file);
+ * String s = Base64Util.transferToBase64("D:/下载/Screenshot_20221008-090627.png", false);
+ * File file1 = new File(filePath);
+ * String s = Base64Util.transferToBase64(file, false);
  * System.out.println(s);
  * // 将Base64转换成文件保存到指定位置，可传入文件全路径或者分别传入保存位置和文件名
  * String s1 = Base64Util.generateFile(s, "D:/下载/aaa.png");
  * String s1 = Base64Util.generateFile(s, "D:/下载", "aaa.png");
  * System.out.println(s1);
+ * //也可以从base64获取文件对象呵呵流，或者文件类型
+ * File file2 = Base64Util.getFile("D:/下载/a.png");
+ * FileInputStream fileInputStream1 = Base64Util.getFileStream("D:/下载/a.png");
+ * String fileType = Base64Util.getFileType("base64Str");
  */
 public class Base64Utils {
     private Base64Utils() {
@@ -41,27 +45,35 @@ public class Base64Utils {
     /**
      * 将文件转换成 Base64 码
      *
-     * @param filePath 文件全路径
+     * @param filePath  文件全路径
+     * @param hasPrefix 是否需要生成前缀
      * @return base64码
      */
-    public static String transferToBase64(String filePath) {
-        return transferToBase64(new File(filePath));
+    public static String transferToBase64(String filePath, boolean hasPrefix) {
+        return transferToBase64(new File(filePath), hasPrefix);
     }
 
     /**
      * 将文件转换成 Base64 码
      *
-     * @param file 文件对象
+     * @param file      文件对象
+     * @param hasPrefix 是否需要生成前缀
      * @return base64码
      */
-    public static String transferToBase64(File file) {
+    public static String transferToBase64(File file, boolean hasPrefix) {
         byte[] fileContent = new byte[0];
         try {
             fileContent = Files.readAllBytes(file.toPath());
         } catch (IOException e) {
             logger.error("读取文件失败——", e);
         }
-        return Base64.encodeBase64String(fileContent);
+        String base64 = Base64.encodeBase64String(fileContent);
+        if (hasPrefix) {
+            String fileName = file.getName();
+            String fileType = fileName.substring(fileName.lastIndexOf(FILE_TYPE_SEPARATOR));
+            base64 = Base64FileTypeEnum.getPrefix(fileType) + base64;
+        }
+        return base64;
     }
 
     /**

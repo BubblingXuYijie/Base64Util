@@ -14,10 +14,10 @@
 - 使用
 
 ```java
-// 将文件编码成Base64，可传入文件全路径，或者一个 File 对象
-String s = Base64Util.transferToBase64("D:/下载/Screenshot_20221008-090627.png");
+// 将文件编码成Base64，可传入文件全路径，或者一个 File 对象，第二个参数是是否生成前缀
+String s = Base64Util.transferToBase64("D:/下载/Screenshot_20221008-090627.png", false);
 File file = new File(filePath);
-String s = Base64Util.transferToBase64(file);
+String s = Base64Util.transferToBase64(file, false);
 System.out.println(s);
 // 将Base64转换成文件保存到指定位置，可传入文件全路径或者分别传入保存位置和文件名，路径分隔符可使用/或\
 String s1 = Base64Util.generateFile(s, "D:\\下载\\aaa.png");
