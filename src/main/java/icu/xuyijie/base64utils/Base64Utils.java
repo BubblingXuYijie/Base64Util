@@ -2,8 +2,6 @@ package icu.xuyijie.base64utils;
 
 import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.lang3.StringUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.io.*;
 import java.nio.file.Files;
@@ -11,6 +9,8 @@ import java.nio.file.Paths;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  * @author 徐一杰
@@ -35,7 +35,7 @@ public class Base64Utils {
 
     }
 
-    private static final Logger logger = LoggerFactory.getLogger(Base64Utils.class);
+    private static final Logger logger = Logger.getLogger(Base64Utils.class.getPackage().getName());
     private static final String WINDOWS_FILE_SEPARATOR = "\\";
     private static final String LINUX_FILE_SEPARATOR = "/";
     protected static final String FILE_TYPE_SEPARATOR = ".";
@@ -65,7 +65,7 @@ public class Base64Utils {
         try {
             fileContent = Files.readAllBytes(file.toPath());
         } catch (IOException e) {
-            logger.error("读取文件失败——", e);
+            logger.log(Level.WARNING, "读取文件失败——", e);
         }
         String base64 = Base64.encodeBase64String(fileContent);
         if (hasPrefix) {
@@ -123,7 +123,7 @@ public class Base64Utils {
         String base64Prefix = StringUtils.substringBetween(base64Str, "/", ";base64,");
         if (StringUtils.isEmpty(base64Prefix)) {
             fileType = ".png";
-            logger.warn("传入的base64没有前缀，并且传入的文件名没有扩展名，所以无法确定文件类型，默认以png格式保存");
+            logger.log(Level.WARNING, "传入的base64没有前缀，并且传入的文件名没有扩展名，所以无法确定文件类型，默认以png格式保存");
         } else {
             //做文件后缀名检测，因为base64的一个缺点就是后缀名不能自动生成，有些特殊后缀无法直接获取
             fileType = Base64FileTypeEnum.getFileType(base64Prefix);
@@ -151,7 +151,7 @@ public class Base64Utils {
             tempFile.deleteOnExit();
             return tempFile;
         } catch (Exception e) {
-            logger.error("base64转换文件对象失败——", e);
+            logger.log(Level.WARNING, "base64转换文件对象失败——", e);
         }
         return null;
     }
@@ -168,7 +168,7 @@ public class Base64Utils {
             try {
                 return new FileInputStream(tempFile);
             } catch (Exception e) {
-                logger.error("base64转换文件流失败——", e);
+                logger.log(Level.WARNING, "base64转换文件流失败——", e);
             }
         }
         return null;
@@ -190,7 +190,7 @@ public class Base64Utils {
                 out.flush();
             }
         } catch (Exception e) {
-            logger.error("文件保存失败——", e);
+            logger.log(Level.WARNING, "文件保存失败——", e);
         }
     }
 
@@ -230,7 +230,7 @@ public class Base64Utils {
         }
         Map<String, String> map = handler(base64Str, filePath);
         if (map.isEmpty()) {
-            logger.error("base64为空，保存失败");
+            logger.log(Level.WARNING, "base64为空，保存失败");
             return "";
         }
         filePath = map.get(FILEPATH_MAP_KEY);
@@ -238,7 +238,7 @@ public class Base64Utils {
         //如果路径不存在就创建文件目录
         File dir = new File(folderPath);
         if (!dir.isDirectory() && !dir.mkdirs()) {
-            logger.error("保存文件夹创建失败：{}", folderPath);
+            logger.log(Level.WARNING, "保存文件夹创建失败：{}", folderPath);
         }
         //保存文件
         saveFile(base64NoPrefix, filePath);
@@ -256,7 +256,7 @@ public class Base64Utils {
     public static String generateFile(String base64Str, String filePath) {
         Map<String, String> map = handler(base64Str, filePath);
         if (map.isEmpty()) {
-            logger.error("base64为空，保存失败");
+            logger.log(Level.WARNING, "base64为空，保存失败");
             return "";
         }
         filePath = map.get(FILEPATH_MAP_KEY);
@@ -270,7 +270,7 @@ public class Base64Utils {
             folderPath = StringUtils.substringBeforeLast(filePath, WINDOWS_FILE_SEPARATOR);
             dir = new File(folderPath);
             if (!dir.isDirectory() && (!dir.mkdirs())) {
-                logger.error("保存文件夹创建失败：{}", folderPath);
+                logger.log(Level.WARNING, "保存文件夹创建失败：{}", folderPath);
             }
         }
         //保存文件
