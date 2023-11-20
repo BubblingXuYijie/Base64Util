@@ -1,11 +1,11 @@
 package icu.xuyijie.base64utils;
 
-import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.lang3.StringUtils;
 
 import java.io.*;
 import java.nio.file.Files;
 import java.nio.file.Paths;
+import java.util.Base64;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
@@ -41,6 +41,7 @@ public class Base64Utils {
     protected static final String FILE_TYPE_SEPARATOR = ".";
     private static final String BASE64_MAP_KEY = "base64";
     private static final String FILEPATH_MAP_KEY = "filePath";
+    private static final String BASE64_PREFIX_SUBSTRING = ";base64,";
 
     /**
      * 将文件转换成 Base64 码
@@ -67,7 +68,7 @@ public class Base64Utils {
         } catch (IOException e) {
             logger.log(Level.WARNING, "读取文件失败——", e);
         }
-        String base64 = Base64.encodeBase64String(fileContent);
+        String base64 = Base64.getEncoder().encodeToString(fileContent);
         if (hasPrefix) {
             String fileName = file.getName();
             String fileType = fileName.substring(fileName.lastIndexOf(FILE_TYPE_SEPARATOR));
@@ -84,16 +85,12 @@ public class Base64Utils {
      * @return 处理过的base64文本和文件路径
      */
     private static Map<String, String> handler(String base64Str, String filePath) {
+        String base64NoPrefix = getNoPrefixBase64(base64Str);
         // 如果文件数据为空
-        if (StringUtils.isBlank(base64Str)) {
+        if (StringUtils.isEmpty(base64NoPrefix)) {
             return Collections.emptyMap();
         }
-        // 去掉base64码的前缀，不去掉生成的文件会损坏
-        String base64NoPrefix = StringUtils.substringAfter(base64Str, ";base64,");
-        // 如果传入的base64没有前缀
-        if (StringUtils.isEmpty(base64NoPrefix)) {
-            base64NoPrefix = base64Str;
-        }
+
         // 获取文件后缀名
         String fileName = StringUtils.substringAfterLast(filePath, WINDOWS_FILE_SEPARATOR);
         if (StringUtils.isEmpty(fileName)) {
@@ -112,6 +109,27 @@ public class Base64Utils {
     }
 
     /**
+     * 去除base64前缀
+     *
+     * @param base64Str base64
+     * @return 去除前缀的base64
+     */
+    public static String getNoPrefixBase64(String base64Str) {
+        // 如果文件数据为空
+        if (StringUtils.isBlank(base64Str)) {
+            logger.log(Level.WARNING, "传入的base64为空");
+            return "";
+        }
+        // 去掉base64码的前缀，不去掉生成的文件会损坏
+        String base64NoPrefix = StringUtils.substringAfter(base64Str, BASE64_PREFIX_SUBSTRING);
+        // 如果传入的base64没有前缀
+        if (StringUtils.isEmpty(base64NoPrefix)) {
+            base64NoPrefix = base64Str;
+        }
+        return base64NoPrefix;
+    }
+
+    /**
      * 解析base64获取文件类型
      *
      * @param base64Str base64
@@ -120,10 +138,10 @@ public class Base64Utils {
     public static String getFileType(String base64Str) {
         String fileType;
         //从未处理过的base64码中判断文件类型
-        String base64Prefix = StringUtils.substringBetween(base64Str, "/", ";base64,");
+        String base64Prefix = StringUtils.substringBetween(base64Str, "/", BASE64_PREFIX_SUBSTRING);
         if (StringUtils.isEmpty(base64Prefix)) {
             fileType = ".png";
-            logger.log(Level.WARNING, "传入的base64没有前缀，并且传入的文件名没有扩展名，所以无法确定文件类型，默认以png格式保存");
+            logger.log(Level.WARNING, "传入的base64没有前缀，并且传入的文件名没有扩展名，所以无法确定文件类型，默认png格式");
         } else {
             //做文件后缀名检测，因为base64的一个缺点就是后缀名不能自动生成，有些特殊后缀无法直接获取
             fileType = Base64FileTypeEnum.getFileType(base64Prefix);
@@ -139,9 +157,10 @@ public class Base64Utils {
      */
     public static File getFile(String base64Str) {
         try {
-            // Base64解码
-            byte[] bytes = decodeBase64(base64Str);
             String fileType = getFileType(base64Str);
+            String base64NoPrefix = getNoPrefixBase64(base64Str);
+            // Base64解码
+            byte[] bytes = decodeBase64(base64NoPrefix);
             // 生成临时文件
             File tempFile = File.createTempFile(String.valueOf(System.currentTimeMillis()), fileType);
             try (BufferedOutputStream out = new BufferedOutputStream(Files.newOutputStream(tempFile.toPath()))) {
@@ -177,13 +196,13 @@ public class Base64Utils {
     /**
      * 保存文件
      *
-     * @param base64Str 文件base64
-     * @param filePath  保存路径
+     * @param base64NoPrefix 无前缀文件base64
+     * @param filePath       保存路径
      */
-    private static void saveFile(String base64Str, String filePath) {
+    private static void saveFile(String base64NoPrefix, String filePath) {
         try {
             // Base64解码
-            byte[] bytes = decodeBase64(base64Str);
+            byte[] bytes = decodeBase64(base64NoPrefix);
             // 生成文件
             try (BufferedOutputStream out = new BufferedOutputStream(Files.newOutputStream(Paths.get(filePath)))) {
                 out.write(bytes);
@@ -202,7 +221,7 @@ public class Base64Utils {
      */
     private static byte[] decodeBase64(String base64Str) {
         // Base64解码
-        byte[] bytes = Base64.decodeBase64(base64Str);
+        byte[] bytes = Base64.getDecoder().decode(base64Str);
         for (int i = 0; i < bytes.length; ++i) {
             // 调整异常数据
             if (bytes[i] < 0) {

@@ -4,7 +4,7 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>icu.xuyijie</groupId>
     <artifactId>Base64Utils</artifactId>
-    <version>1.3.1</version>
+    <version>1.3.2</version>
     <name>Base64Utils</name>
     <description>将 Base64 解码生成文件保存到指定路径，或将文件转换成 Base64 码</description>
     <url>https://github.com/BubblingXuYijie/Base64Util</url>
@@ -44,11 +44,6 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     </properties>
     <dependencies>
-        <dependency>
-            <groupId>commons-codec</groupId>
-            <artifactId>commons-codec</artifactId>
-            <version>1.16.0</version>
-        </dependency>
         <dependency>
             <groupId>org.apache.commons</groupId>
             <artifactId>commons-lang3</artifactId>
