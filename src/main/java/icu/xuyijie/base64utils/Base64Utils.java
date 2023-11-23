@@ -1,6 +1,7 @@
 package icu.xuyijie.base64utils;
 
 import org.apache.commons.lang3.StringUtils;
+import org.apache.tika.Tika;
 
 import java.io.*;
 import java.nio.file.Files;
@@ -30,6 +31,7 @@ import java.util.logging.Logger;
  * FileInputStream fileInputStream1 = Base64Util.getFileStream("D:/下载/a.png");
  * String fileType = Base64Util.getFileType("base64Str");
  */
+@SuppressWarnings("unused")
 public class Base64Utils {
     private Base64Utils() {
 
@@ -136,17 +138,63 @@ public class Base64Utils {
      * @return 文件类型
      */
     public static String getFileType(String base64Str) {
-        String fileType;
+        String fileType = "";
         //从未处理过的base64码中判断文件类型
         String base64Prefix = StringUtils.substringBetween(base64Str, "/", BASE64_PREFIX_SUBSTRING);
         if (StringUtils.isEmpty(base64Prefix)) {
-            fileType = ".png";
-            logger.log(Level.WARNING, "传入的base64没有前缀，并且传入的文件名没有扩展名，所以无法确定文件类型，默认png格式");
+            //如果没有前缀，采用Tika读取文件字节进行判断
+            File file = decodeBase64ToFile(base64Str, "");
+            if (file != null) {
+                String fileMimeType = getFileMimeType(file);
+                fileType = Base64FileTypeEnum.getFileType(fileMimeType);
+            } else {
+                logger.log(Level.WARNING, "无法确定文件类型");
+            }
         } else {
-            //做文件后缀名检测，因为base64的一个缺点就是后缀名不能自动生成，有些特殊后缀无法直接获取
+            //根据base64前缀获取文件类型
             fileType = Base64FileTypeEnum.getFileType(base64Prefix);
         }
         return fileType;
+    }
+
+    /**
+     * 解析文件对象获取文件mimeType
+     *
+     * @param file 文件对象
+     * @return 文件mimeType
+     */
+    public static String getFileMimeType(File file) {
+        Tika tika = new Tika();
+        try {
+            return tika.detect(file);
+        } catch (IOException e) {
+            return "";
+        }
+    }
+
+    /**
+     * 从base64字符串中解析出临时文件对象
+     *
+     * @param base64NoPrefix base64字符串(无前缀)
+     * @param fileType       文件类型扩展名
+     * @return 临时文件对象
+     */
+    private static File decodeBase64ToFile(String base64NoPrefix, String fileType) {
+        File tempFile = null;
+        // Base64解码
+        byte[] bytes = decodeBase64ToByte(base64NoPrefix);
+        try {
+            // 生成临时文件
+            tempFile = File.createTempFile(String.valueOf(System.currentTimeMillis()), fileType);
+            try (BufferedOutputStream out = new BufferedOutputStream(Files.newOutputStream(tempFile.toPath()))) {
+                out.write(bytes);
+                out.flush();
+            }
+            tempFile.deleteOnExit();
+        } catch (IOException e) {
+            logger.log(Level.WARNING, "base64转换文件对象失败", e);
+        }
+        return tempFile;
     }
 
     /**
@@ -159,16 +207,7 @@ public class Base64Utils {
         try {
             String fileType = getFileType(base64Str);
             String base64NoPrefix = getNoPrefixBase64(base64Str);
-            // Base64解码
-            byte[] bytes = decodeBase64(base64NoPrefix);
-            // 生成临时文件
-            File tempFile = File.createTempFile(String.valueOf(System.currentTimeMillis()), fileType);
-            try (BufferedOutputStream out = new BufferedOutputStream(Files.newOutputStream(tempFile.toPath()))) {
-                out.write(bytes);
-                out.flush();
-            }
-            tempFile.deleteOnExit();
-            return tempFile;
+            return decodeBase64ToFile(base64NoPrefix, fileType);
         } catch (Exception e) {
             logger.log(Level.WARNING, "base64转换文件对象失败——", e);
         }
@@ -202,7 +241,7 @@ public class Base64Utils {
     private static void saveFile(String base64NoPrefix, String filePath) {
         try {
             // Base64解码
-            byte[] bytes = decodeBase64(base64NoPrefix);
+            byte[] bytes = decodeBase64ToByte(base64NoPrefix);
             // 生成文件
             try (BufferedOutputStream out = new BufferedOutputStream(Files.newOutputStream(Paths.get(filePath)))) {
                 out.write(bytes);
@@ -219,7 +258,7 @@ public class Base64Utils {
      * @param base64Str Base64
      * @return 字节数组
      */
-    private static byte[] decodeBase64(String base64Str) {
+    private static byte[] decodeBase64ToByte(String base64Str) {
         // Base64解码
         byte[] bytes = Base64.getDecoder().decode(base64Str);
         for (int i = 0; i < bytes.length; ++i) {
