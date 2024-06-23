@@ -29,10 +29,9 @@
     </developers>
 
     <scm>
-        <tag>main</tag>
         <url>https://github.com/BubblingXuYijie/Base64Util</url>
-        <connection>scm:git:https://github.com/BubblingXuYijie/Base64Util</connection>
-        <developerConnection>scm:git:https://github.com/BubblingXuYijie/Base64Util</developerConnection>
+        <connection>scm:git:git@github.com:BubblingXuYijie/Base64Util.git</connection>
+        <developerConnection>scm:git:git@github.com:BubblingXuYijie/Base64Util.git</developerConnection>
     </scm>
 
     <properties>
